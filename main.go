@@ -55,12 +55,17 @@ func maxChunks(data []int) int {
 	}
 
 	sliceSize := len(data) / CHUNKS
+	remainder := len(data) % CHUNKS
 
-	maxSlize := make([]int, CHUNKS)
+	maxSlice := make([]int, CHUNKS)
 
+	start := 0
 	for i := 0; i < CHUNKS; i++ {
-		start := sliceSize * i
+		// определяем размер текущего чанка
 		end := start + sliceSize
+		if i < remainder {
+			end++ // добавляем один элемент из остатка
+		}
 
 		partSlice := data[start:end]
 
@@ -68,13 +73,15 @@ func maxChunks(data []int) int {
 
 		go func(m int, p []int) {
 			defer wg.Done()
-			maxSlize[m] = maximum(p)
+			maxSlice[m] = maximum(p)
 		}(i, partSlice)
+
+		start = end
 	}
 
 	wg.Wait()
 
-	return maximum(maxSlize)
+	return maximum(maxSlice)
 }
 
 func main() {
